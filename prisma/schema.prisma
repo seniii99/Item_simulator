@@ -17,8 +17,74 @@ model Users {
   userId Int @id @default(autoincrement()) @map("userId")
   id String @unique @map("id")
   password String @map("password")
-  passwordCheck String @map("password")
+  passwordCheck String @map("passwordCheck")
   name String @map("name")
 
+  Characters Characters[] // Users 와 Character는 1:N
+  userInfo UserInfos? @relation()
+
   @@map("Users")
+}
+
+model UserInfos {
+  userInfoId Int @id @default(autoincrement()) @map("userInfoId")
+  userId Int @unique @map("userId")
+  id String @map("id")
+  name String @map("name")
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("UserInfos")
+}
+
+model Characters {
+  characterId   Int      @id @default(autoincrement()) @map("characterId")
+  userId        Int      @map("userId") // User와 연결
+  charactername String   @unique @map("charactername")
+  health        Int      @default(500) @map("health")
+  power         Int      @default(100) @map("power")
+  money         Int      @default(10000) @map("money")
+  user          Users    @relation(fields: [userId], references: [userId])
+  inventories   Inventory[] // 캐릭터와 인벤토리는 1:N 관계
+
+  @@map("Characters")
+}
+
+model Items {
+  itemId      Int    @id @default(autoincrement()) @map("itemId")
+  name        String @map("name")
+  health      Int    @map("health")
+  power       Int    @map("power")
+  price       Int    @map("price")
+  description String @map("description")
+
+  inventories Inventory[] // 아이템과 인벤토리는 1:N 관계
+equipments  Equipments[] 
+
+  @@map("Items")
+}
+
+model Inventory {
+  inventoryId Int @id @default(autoincrement()) @map("inventoryId")
+  itemId Int @map("itemId")
+  characterId Int @map("characterId")
+  name String @map("name")
+  stats Json @map("stats")
+  price Int @map("price")
+  item Items @relation(fields: [itemId], references: [itemId])
+  character Characters @relation(fields: [characterId], references: [characterId])
+
+  @@map("Inventory")
+}
+
+model Equipments {
+  equipmentId Int @id @default(autoincrement()) @map("equipmentId")
+  itemId Int @unique @map("itemId")
+  characterId Int @map("characterId")
+  name String @map("name")
+  stats Json @map("stats")
+  price Int @map("price")
+
+  item        Items     @relation(fields: [itemId], references: [itemId])
+  
+  @@map("Equipments")
 }
